@@ -11,11 +11,9 @@ namespace rxtest
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Press a Key");
-
             var keys = GetInput().ToObservable();
 
-            var details = ObservableTransaction.MakeObservable(keys);
+            var details = ObservableTransaction.MakeTransactionObservable(keys, "Diesel", 1.569M);
 
             using (details.Subscribe(
                 detail => Console.WriteLine(detail),
@@ -27,7 +25,6 @@ namespace rxtest
                     ;
                 }
             }
-            Console.WriteLine("done");
         }
 
         private static IEnumerable<char> GetInput()
@@ -35,14 +32,7 @@ namespace rxtest
             while (true)
             {
                 var key = Console.ReadKey();
-                if (key.KeyChar == 'x')
-                {
-                    break;
-                }
-                else
-                {
-                    yield return key.KeyChar;
-                }
+                yield return key.KeyChar;
             }
         }
     }
