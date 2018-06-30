@@ -26,11 +26,13 @@ namespace rxtest
                     if (state == TransactionState.Filling)
                     {
                         volume += 0.05M;
-                        return new TransactionDetail(state, grade, unitPrice, volume);
                     }
-                    else
-                        return new TransactionDetail(state, grade, unitPrice, volume);
-                }).TakeWhile(d => d.State != TransactionState.Ended);
+
+                    return new { state, volume };
+                })
+                .DistinctUntilChanged()
+                .TakeWhile(d => d.state != TransactionState.Ended)
+                .Select(d => new TransactionDetail(d.state, grade, unitPrice, d.volume));
         }
 
         private static TransactionState CharacterToTransactionState(char c)
