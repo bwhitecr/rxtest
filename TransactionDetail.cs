@@ -24,9 +24,7 @@ namespace rxtest
         public decimal Volume { get; }
         public decimal TotalPrice { get => UnitPrice * Volume; }
 
-        public override string ToString()
-        {
-            return $"{Timestamp} - {State} - {Volume}L @ {UnitPrice}/L = {TotalPrice:c}";
-        }
+        public override string ToString() 
+            => $"{Timestamp} - {State} - {Volume}L @ {UnitPrice}/L = {TotalPrice:c}";
     }
 }
