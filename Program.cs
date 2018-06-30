@@ -13,12 +13,12 @@ namespace rxtest
         {
             Console.WriteLine("Press a Key");
 
-            var thing = GetInput().ToObservable();
+            var keys = GetInput().ToObservable();
 
-            var te = ObservableTransaction.MakeObservable(thing);
+            var details = ObservableTransaction.MakeObservable(keys);
 
-            using (te.Subscribe(
-                s => Console.WriteLine(s),
+            using (details.Subscribe(
+                detail => Console.WriteLine(detail),
                 e => Console.WriteLine(e.Message),
                 () => done = true))
             {
