@@ -9,51 +9,43 @@ namespace rxtest
 {
     public class ObservableTransaction
     {
-        public static IObservable<string> MakeObservable(IObservable<char> input)
+        public static IObservable<TransactionDetail> MakeObservable(IObservable<char> input)
         {
-            TransactionState currentState = TransactionState.Idle;
-
             var stateObservable = input.Select(c =>
             {
                 switch (c)
                 {
                     case '1':
-                        currentState = TransactionState.Idle;
-                        break;
+                        return TransactionState.Idle;
                     case '2':
-                        currentState =  TransactionState.Calling;
-                        break;
+                        return TransactionState.Calling;
                     case '3':
-                        currentState =  TransactionState.Acknowledged;
-                        break;
+                        return TransactionState.Acknowledged;
                     case '4':
-                        currentState = TransactionState.Filling;
-                        break;
+                        return TransactionState.Filling;
                     case '5':
-                        currentState = TransactionState.Ended;
-                        break;
+                        return TransactionState.Finalised;
+                    default:
+                        return TransactionState.Ended;
                 }
-                return currentState;
             });
 
             var timeObservable = Observable
-                .Interval(TimeSpan.FromMilliseconds(50))
-                .Select(_ => currentState);
+                .Interval(TimeSpan.FromMilliseconds(50));
 
             var volume = 0M;
 
-            return Observable.Merge(stateObservable, timeObservable)
-                .TakeWhile(state => state != TransactionState.Ended)
-                .Select(state =>
+            return Observable.CombineLatest(stateObservable, timeObservable,
+                (state, time) =>
                 {
                     if (state == TransactionState.Filling)
                     {
                         volume += 0.05M;
-                        return $"Filling - {volume} litres";
+                        return new TransactionDetail(state, volume);
                     }
                     else
-                        return state.ToString();
-                });
+                        return new TransactionDetail(state, volume);
+                }).TakeWhile(d => d.State != TransactionState.Ended);
         }
     }
 }

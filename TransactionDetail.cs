@@ -14,5 +14,10 @@ namespace rxtest
         public DateTimeOffset Timestamp { get; }
         public TransactionState State { get; }
         public decimal Volume { get; }
+
+        public override string ToString()
+        {
+            return $"{Timestamp} - {State} - {Volume}L";
+        }
     }
 }
