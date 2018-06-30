@@ -9,51 +9,6 @@ namespace rxtest
 {
     public class ObservableTransaction
     {
-        private TransactionState currentState;
-        private readonly Task generator;
-
-        readonly ReplaySubject<string> subject;
-
-        public ObservableTransaction(IObservable<char> inputObservable)
-        {
-            currentState = TransactionState.Idle;
-
-            subject = new ReplaySubject<string>();
-            subject.OnNext("Initialised.");
-
-            generator = Task.Run(() =>
-            {
-                decimal currentVolume = 0M;
-
-                while (true)
-                {
-                    var cs = currentState;
-                    var s = cs.ToString();
-
-                    if (cs == TransactionState.Filling)
-                    {
-                        currentVolume += 0.005M;
-                        s = $"Volume: {currentVolume}L";
-                    }
-                    else if (cs == TransactionState.Ended)
-                    {
-                        break;
-                    }
-                    subject.OnNext(s);
-                    Task.Delay(10).Wait();
-                }
-
-                subject.OnCompleted();
-            });
-
-            inputObservable.Subscribe((c) =>
-                {
-
-                });
-
-
-        }
-
         public static IObservable<string> MakeObservable(IObservable<char> input)
         {
             TransactionState currentState = TransactionState.Idle;
@@ -81,7 +36,9 @@ namespace rxtest
                 return currentState;
             });
 
-            var timeObservable = Observable.Interval(TimeSpan.FromMilliseconds(50)).Select(_ => currentState);
+            var timeObservable = Observable
+                .Interval(TimeSpan.FromMilliseconds(50))
+                .Select(_ => currentState);
 
             var volume = 0M;
 
@@ -98,7 +55,5 @@ namespace rxtest
                         return state.ToString();
                 });
         }
-
-        public IObservable<string> DataStream { get => subject; }
     }
 }
