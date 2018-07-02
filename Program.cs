@@ -19,7 +19,7 @@ namespace rxtest
             var details = ObservableTransaction.MakeTransactionObservable(keys, "Diesel", 1.569M);
 
             using (details.Subscribe(
-                detail => Console.WriteLine(detail),
+                Console.WriteLine,
                 e => Console.WriteLine(e.Message)))
             {
                 Console.ReadLine();
@@ -41,14 +41,34 @@ namespace rxtest
             Console.WriteLine();
         }
 
-        private static IEnumerable<char> GetInput()
+        private static IEnumerable<TransactionState> GetInput()
         {
             while (true)
             {
                 var key = Console.ReadKey();
-                yield return key.KeyChar;
+                var state = CharacterToTransactionState(key.KeyChar);
+                yield return state;
             }
         }
 
+
+        private static TransactionState CharacterToTransactionState(char c)
+        {
+            switch (c)
+            {
+                case '1':
+                    return TransactionState.Idle;
+                case '2':
+                    return TransactionState.Calling;
+                case '3':
+                    return TransactionState.Acknowledged;
+                case '4':
+                    return TransactionState.Filling;
+                case '5':
+                    return TransactionState.Finalised;
+                default:
+                    return TransactionState.Ended;
+            }
+        }
     }
 }
